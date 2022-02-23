@@ -6,13 +6,15 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The R package ERG provides tools to:
-+ Denoise ERG data + Remove outlier
-traces
-+ Average traces
-+ Detect peaks
-+ Fit summary functions (e.g.,
-Naka-Rushton function)
+The R package ERG provides tools to (1.) denoise ERG data, (2.) remove
+outlier traces, (3.) average traces, (4.) detect peaks and (5.) fit
+summary functions (e.g., Naka-Rushton function).
+
+### Contact
+
+Maximilian Pfau, MD: [maximilian.pfau@nih.gov](maximilian.pfau@nih.gov)
+
+Brett Jeffrey, Ph.D.: [brett.jeffrey@nih.gov](brett.jeffrey@nih.gov)
 
 ## Installation
 

@@ -21,6 +21,13 @@ knitr::opts_chunk$set(
 
 The R package ERG provides tools to (1.) denoise ERG data, (2.) remove outlier traces, (3.) average traces, (4.) detect peaks and (5.) fit summary functions (e.g., Naka-Rushton function).
 
+### Contact
+
+Maximilian Pfau, MD: [maximilian.pfau@nih.gov](maximilian.pfau@nih.gov)
+
+Brett Jeffrey, Ph.D.: [brett.jeffrey@nih.gov](brett.jeffrey@nih.gov)
+
+
 ## Installation
 
 You can install the development version of ERG from [GitHub](https://github.com/) with:
