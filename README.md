@@ -93,5 +93,5 @@ scotDataFitted %>%
 
 ## Please note
 
-The algorithm will always detect peaks. A filter function is required to
+The algorithm will always detect peaks. A filter step should be used to
 exclude spurious peaks (usually based on small amplitudes).
