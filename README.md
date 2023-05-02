@@ -6,13 +6,13 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The R package ERG provides tools to (1.) denoise ERG data, (2.) remove
+The R package ERG provides tools to (1.) detrend ERG data, (2.) remove
 outlier traces, (3.) average traces, (4.) detect peaks and (5.) fit
 summary functions (e.g., Naka-Rushton function).
 
 ### Contact
 
-Maximilian Pfau, MD: [maximilian.pfau@nih.gov](maximilian.pfau@nih.gov)
+Maximilian Pfau, MD: [maximilian.pfau@iob.ch](maximilian.pfau@iob.ch)
 
 Brett Jeffrey, Ph.D.: [brett.jeffrey@nih.gov](brett.jeffrey@nih.gov)
 
@@ -26,38 +26,72 @@ You can install the development version of ERG from
 devtools::install_github("maximilianpfau/ERG")
 ```
 
-## Example
+## Example for scotopic ERGs
 
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(ERG)
-## basic example code
+library(tidyverse)
+#> ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+#> ✔ dplyr     1.1.1     ✔ readr     2.1.4
+#> ✔ forcats   1.0.0     ✔ stringr   1.5.0
+#> ✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+#> ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+#> ✔ purrr     1.0.1     
+#> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+#> ✖ dplyr::filter() masks stats::filter()
+#> ✖ dplyr::lag()    masks stats::lag()
+#> ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+# Visualize the native data
+
+scotErgExample %>%
+  filter(DOE=="2016-03-30") %>%
+  ggplot(aes(x=time, y=signal, group=traceID)) + geom_line(alpha=0.2) +
+  facet_wrap(~intensity) +
+  xlim(-20,250) + theme_bw() +
+  xlab("Time [ms]") + ylab("Amp. [uV]")
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+<img src="man/figures/README-example-1.png" width="100%" />
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+  
+# Visualize the de-trended data, averaged data (blue lines), and the identified peaks
+
+scotDataFitted <- scotErgExample %>%
+  filter(time < 250) %>%
+  ERG::detrend(.) %>%
+  ERG::avgTraces(.)
+#> Joining with `by = join_by(traceID, time)`
+#> Joining with `by = join_by(DOE, recording, time)`
+
+scotDataFitted <- scotDataFitted  %>%
+  ERG::scotPeakFinder(.)
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+  
+scotDataFitted %>%
+  filter(DOE=="2016-03-30") %>%
+  ggplot(aes(x=time, y=(signal-.fitted), group=traceID)) + geom_line(alpha=0.2) +
+  geom_line(aes(x=time, y=meanSignal), color="blue") +
+  geom_point(aes(x=awave_peak_time, y=awave_amp), color="red") +
+  geom_point(aes(x=bwave_peak_time, y=bwave_to_iso_amp), color="green") +
+  facet_wrap(~intensity) +
+  xlim(-20,250) + theme_bw() +
+  xlab("Time [ms]") + ylab("Amp. [uV]")
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
+<img src="man/figures/README-example-2.png" width="100%" />
 
-You can also embed plots, for example:
+## Please note
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+The algorithm will always detect peaks. A filter function (usually based
+on small amplitudes) to exclude spurious peaks.
