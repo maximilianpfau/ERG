@@ -91,6 +91,60 @@ scotDataFitted %>%
 
 <img src="man/figures/README-example-2.png" width="100%" />
 
+## Example for photopic ERGs
+
+``` r
+library(ERG)
+library(tidyverse)
+
+# Visualize the native data
+
+photErgExample %>%
+  filter(DOE=="2016-03-30") %>%
+  ggplot(aes(x=time, y=signal, group=traceID)) + geom_line(alpha=0.2) +
+  facet_wrap(~intensity) +
+  xlim(-20,250) + ylim(-100,100) + theme_bw() +
+  xlab("Time [ms]") + ylab("Amp. [uV]")
+#> Warning: Removed 3219 rows containing missing values (`geom_line()`).
+```
+
+<img src="man/figures/README-photopic example-1.png" width="100%" />
+
+``` r
+  
+
+# Visualize the de-trended data, averaged data (blue lines), and the identified peaks
+
+photDataFitted <- photErgExample %>%
+  filter(time < 250) %>%
+  ERG::detrend(.) %>%
+  ERG::avgTraces(.)
+#> Joining with `by = join_by(traceID, time)`
+#> Joining with `by = join_by(DOE, recording, time)`
+
+photDataFitted <- photDataFitted %>%
+  ERG::photPeakFinder(.)
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+#> Joining with `by = join_by(traceID)`
+  
+photDataFitted %>%
+  filter(DOE=="2016-03-30") %>%
+  ggplot(aes(x=time, y=(signal-.fitted), group=traceID)) + geom_line(alpha=0.2) +
+  geom_line(aes(x=time, y=meanSignal), color="blue") +
+  geom_point(aes(x=awave_peak_time, y=awave_amp), color="red") +
+  geom_point(aes(x=bwave_peak_time, y=bwave_to_iso_amp), color="green") +
+  facet_wrap(~intensity) +
+  xlim(-20,250) + ylim(-100,100) + theme_bw() +
+  xlab("Time [ms]") + ylab("Amp. [uV]")
+#> Warning: Removed 3817 rows containing missing values (`geom_line()`).
+#> Warning: Removed 1809 rows containing missing values (`geom_line()`).
+```
+
+<img src="man/figures/README-photopic example-2.png" width="100%" />
+
 ## Please note
 
 The algorithm will always detect peaks. A filter step should be used to

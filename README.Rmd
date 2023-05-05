@@ -77,6 +77,47 @@ scotDataFitted %>%
 ```
 
 
+## Example for photopic ERGs
+
+
+```{r photopic example}
+library(ERG)
+library(tidyverse)
+
+# Visualize the native data
+
+photErgExample %>%
+  filter(DOE=="2016-03-30") %>%
+  ggplot(aes(x=time, y=signal, group=traceID)) + geom_line(alpha=0.2) +
+  facet_wrap(~intensity) +
+  xlim(-20,250) + ylim(-100,100) + theme_bw() +
+  xlab("Time [ms]") + ylab("Amp. [uV]")
+  
+
+# Visualize the de-trended data, averaged data (blue lines), and the identified peaks
+
+photDataFitted <- photErgExample %>%
+  filter(time < 250) %>%
+  ERG::detrend(.) %>%
+  ERG::avgTraces(.)
+
+photDataFitted <- photDataFitted %>%
+  ERG::photPeakFinder(.)
+  
+photDataFitted %>%
+  filter(DOE=="2016-03-30") %>%
+  ggplot(aes(x=time, y=(signal-.fitted), group=traceID)) + geom_line(alpha=0.2) +
+  geom_line(aes(x=time, y=meanSignal), color="blue") +
+  geom_point(aes(x=awave_peak_time, y=awave_amp), color="red") +
+  geom_point(aes(x=bwave_peak_time, y=bwave_to_iso_amp), color="green") +
+  facet_wrap(~intensity) +
+  xlim(-20,250) + ylim(-100,100) + theme_bw() +
+  xlab("Time [ms]") + ylab("Amp. [uV]")
+
+
+
+```
+
 ## Please note
 
 The algorithm will always detect peaks. A filter step should be used to exclude spurious peaks (usually based on small amplitudes). 
